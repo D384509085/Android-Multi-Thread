@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 
 public class ImageTest extends AppCompatActivity {
 
@@ -56,7 +55,6 @@ public class ImageTest extends AppCompatActivity {
         protected Bitmap doInBackground(String... params) {
             String url = params[0];
             Bitmap bitmap = null;
-            URLConnection connection;
             InputStream is;
             try {
                 URL Url = new URL(url);
