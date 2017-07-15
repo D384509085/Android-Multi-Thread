@@ -93,6 +93,15 @@ public class FileListAdapter extends BaseAdapter implements View.OnClickListener
         }
     }
 
+    /**
+     * 更新列表的进度条
+     */
+    public void updateProgress(int id, int progress) {
+        FileInfo fileInfo = mFileList.get(id);
+        fileInfo.setFinished(progress);
+        notifyDataSetChanged();
+    }
+
     //静态类只会被加载一次
     static class ViewHolder {
         TextView textView;

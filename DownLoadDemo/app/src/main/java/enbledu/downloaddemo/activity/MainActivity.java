@@ -10,6 +10,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,13 +74,21 @@ public class MainActivity extends AppCompatActivity{
             public void onReceive(Context context, Intent intent) {
                 if(DownloadService.ACTION_UPDATE.equals(intent.getAction())) {
                     int finished = intent.getIntExtra("finished",0);
-
+                    int id = intent.getIntExtra("id" , 0);
+                    fileListAdapter.updateProgress(id, finished);
+                }
+                else if(DownloadService.ACTION_FINISHED.equals(intent.getAction())) {
+                    //更新进度条
+                    FileInfo fileInfo = (FileInfo) intent.getSerializableExtra("fileInfo");
+                    fileListAdapter.updateProgress(fileInfo.getId(),100);
+                    Toast.makeText(MainActivity.this, filelist.get(fileInfo.getId()).getFileName()+"下载完毕", Toast.LENGTH_SHORT).show();
                 }
             }
         };
         //注册广播接收器
         IntentFilter filter = new IntentFilter();
         filter.addAction(DownloadService.ACTION_UPDATE);
+        filter.addAction(DownloadService.ACTION_FINISHED);
         registerReceiver(mReceiver, filter);
     }
 

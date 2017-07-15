@@ -14,13 +14,15 @@ import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import enbledu.downloaddemo.entities.FileInfo;
 
 public class DownloadService extends Service {
 
     private String TAG = "DownloadService";
-    private  DownloadTask mTask = null;
+    private Map<Integer, DownloadTask> mTasks = new LinkedHashMap<Integer,DownloadTask>();
 
     public static final String DOWNLOAD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/download/";
     public static final String ACTION_START = "ACTION_START";
@@ -41,9 +43,10 @@ public class DownloadService extends Service {
             new InitThread(fileInfo).start();
         } else  if (ACTION_STOP.equals(intent.getAction())) {
             FileInfo fileInfo = (FileInfo) intent.getSerializableExtra("fileInfo");
-            Log.i(TAG,fileInfo.toString()+"stop");
-            if(mTask!=null) {
-                mTask.isPause = true;
+            //从集合中取出下载任务
+            DownloadTask task = mTasks.get(fileInfo.getId());
+            if (task != null) {
+                task.isPause = true;
             }
         }
 
@@ -64,8 +67,10 @@ public class DownloadService extends Service {
                     FileInfo fileInfo = (FileInfo) msg.obj;
                     Log.i("test", "init"+ fileInfo.toString());
                     //启动下载任务
-                    mTask = new DownloadTask(DownloadService.this,fileInfo);
-                    mTask.download();
+                    DownloadTask task = new DownloadTask(DownloadService.this, fileInfo, 3);
+                    task.download();
+                    mTasks.put(fileInfo.getId(), task);
+                    break;
                 }
             }
         }
