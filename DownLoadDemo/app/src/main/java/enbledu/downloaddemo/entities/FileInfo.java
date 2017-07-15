@@ -1,10 +1,12 @@
 package enbledu.downloaddemo.entities;
 
+import java.io.Serializable;
+
 /**
  * Created by Administrator on 2017/7/14 0014.
  */
 
-public class FileInfo {
+public class FileInfo implements Serializable{
     private int id;
     private String url;
     private String fileName;
@@ -52,5 +54,25 @@ public class FileInfo {
 
     public int getFinished() {
         return finished;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
+    }
+
+    public void setFinished(int finished) {
+        this.finished = finished;
     }
 }
