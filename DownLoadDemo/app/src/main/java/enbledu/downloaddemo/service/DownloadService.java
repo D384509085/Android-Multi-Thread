@@ -101,11 +101,11 @@ public class DownloadService extends Service {
                 e.printStackTrace();
             } finally {
                 conn.disconnect();
-                /*try {
-                    //raf.close();
+                try {
+                    raf.close();
                 } catch (IOException e) {
                     e.printStackTrace();
-                }*/
+                }
             }
         }
     }

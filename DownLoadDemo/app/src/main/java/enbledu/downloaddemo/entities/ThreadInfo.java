@@ -11,6 +11,9 @@ public class ThreadInfo {
     private int end;
     private int finished;
 
+    public ThreadInfo() {
+
+    }
     public ThreadInfo(int id, String url, int start, int end, int finished) {
         this.id = id;
         this.url = url;
@@ -48,5 +51,25 @@ public class ThreadInfo {
 
     public int getFinished() {
         return finished;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setStart(int start) {
+        this.start = start;
+    }
+
+    public void setEnd(int end) {
+        this.end = end;
+    }
+
+    public void setFinished(int finished) {
+        this.finished = finished;
     }
 }
