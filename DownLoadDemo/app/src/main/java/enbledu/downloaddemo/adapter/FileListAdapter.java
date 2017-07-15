@@ -2,6 +2,7 @@ package enbledu.downloaddemo.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,7 @@ import enbledu.downloaddemo.service.DownloadService;
  * Created by Administrator on 2017/7/16 0016.
  */
 
-public class FileListAdapter extends BaseAdapter implements View.OnClickListener{
+public class FileListAdapter extends BaseAdapter{
 
     private Context mContext = null;
     private List<FileInfo> mFileList;
@@ -62,36 +63,32 @@ public class FileListAdapter extends BaseAdapter implements View.OnClickListener
         else {
             holder = (ViewHolder) convertView.getTag();
         }
-        FileInfo fileInfo = mFileList.get(position);
+        final FileInfo fileInfo = mFileList.get(position);
+        Log.i("Adapter", fileInfo.toString());
         holder.textView.setText(fileInfo.getFileName());
         holder.progressBar.setMax(100);
         holder.progressBar.setProgress(fileInfo.getFinished());
-        holder.btnStart.setOnClickListener(this);
-        holder.btnStop.setOnClickListener(this);
+        holder.btnStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, DownloadService.class);
+                intent.setAction(DownloadService.ACTION_START);
+                intent.putExtra("fileInfo", fileInfo);
+                mContext.startService(intent);
+            }
+        });
+        holder.btnStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, DownloadService.class);
+                intent.setAction(DownloadService.ACTION_STOP);
+                intent.putExtra("fileInfo", fileInfo);
+                mContext.startService(intent);
+            }
+        });
         return convertView;
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_start :{
-                Intent intent = new Intent(mContext, DownloadService.class);
-                intent.setAction(DownloadService.ACTION_START);
-                intent.putExtra("fielInfo", fileInfo);
-                mContext.startService(intent);
-                break;
-            }
-            case R.id.btn_stop: {
-                Intent intent = new Intent(mContext, DownloadService.class);
-                intent.setAction(DownloadService.ACTION_STOP);
-                intent.putExtra("fielInfo", fileInfo);
-                mContext.startService(intent);
-                break;
-            }
-
-
-        }
-    }
 
     /**
      * 更新列表的进度条

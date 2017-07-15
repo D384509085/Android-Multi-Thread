@@ -24,7 +24,7 @@ public class DownloadService extends Service {
     private String TAG = "DownloadService";
     private Map<Integer, DownloadTask> mTasks = new LinkedHashMap<Integer,DownloadTask>();
 
-    public static final String DOWNLOAD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/download/";
+    public static final String DOWNLOAD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/downloa/";
     public static final String ACTION_START = "ACTION_START";
     public static final String ACTION_STOP = "ACTION_STOP";
     public static final String ACTION_UPDATE = "ACTION_UPDATE";
@@ -38,7 +38,7 @@ public class DownloadService extends Service {
     public int onStartCommand(Intent intent,  int flags, int startId) {
         if (ACTION_START.equals(intent.getAction())) {
             FileInfo fileInfo = (FileInfo) intent.getSerializableExtra("fileInfo");
-            Log.i(TAG,fileInfo.toString()+"start");
+            Log.i("onStartCommand",fileInfo.toString());
 
             new InitThread(fileInfo).start();
         } else  if (ACTION_STOP.equals(intent.getAction())) {
