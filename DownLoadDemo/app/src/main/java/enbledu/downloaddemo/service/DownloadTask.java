@@ -10,6 +10,7 @@ import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import enbledu.downloaddemo.database.ThreadDAO;
@@ -27,25 +28,41 @@ public class DownloadTask {
     private FileInfo mFileInfo = null;
     private ThreadDAO mDao = null;
     private int mFinished = 0;
+    private int mThreadCount = 1;
+    private List<DownloadThread> threadList = null;
+
     public boolean isPause = false;
 
-    public DownloadTask(Context mContex, FileInfo mFileInfo) {
+
+    public DownloadTask(Context mContex, FileInfo mFileInfo, int threadCount) {
         this.mContext = mContex;
         this.mFileInfo = mFileInfo;
         mDao = new ThreadDAOImpl(mContex);
+        this.mThreadCount = threadCount;
     }
 
     public void download() {
         List<ThreadInfo> threadInfoList = mDao.getThreads(mFileInfo.getUrl());
-        ThreadInfo threadInfo = null;
         if(threadInfoList.size() == 0) {
-            //初始化线程信息对象
-            threadInfo = new ThreadInfo(0,mFileInfo.getUrl(),0,mFileInfo.getLength(),0);
-        } else {
-            threadInfo = threadInfoList.get(0);
+            //获得每个线程下载长度
+            int eachlength = mFileInfo.getLength() / mThreadCount;
+            for(int i = 0; i < mThreadCount-1; i++) {
+                ThreadInfo threadInfo = new ThreadInfo(i, mFileInfo.getUrl(),eachlength*i, (i+1)*eachlength-1, 0);
+                //最后一个线程
+                if(i == mThreadCount - 1) {
+                    threadInfo.setEnd(mFileInfo.getLength());
+                }
+                threadInfoList.add(threadInfo);
+            }
+            threadList = new ArrayList<DownloadThread>();
+            for (ThreadInfo threadInfo : threadInfoList) {
+                DownloadThread thread = new DownloadThread(threadInfo);
+                thread.start();
+                //将线程添加到集合中
+                threadList.add(thread);
+            }
+
         }
-        //创建子线程下载
-        new DownloadThread(threadInfo).start();
     }
 
     /**
@@ -108,7 +125,7 @@ public class DownloadTask {
             } catch (IOException e) {
                 e.printStackTrace();
             }finally {
-                conn.disconnect();;
+                conn.disconnect();
                 try {
                     input.close();
                     raf.close();

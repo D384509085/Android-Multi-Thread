@@ -5,45 +5,56 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import enbledu.downloaddemo.R;
+import enbledu.downloaddemo.adapter.FileListAdapter;
 import enbledu.downloaddemo.entities.FileInfo;
 import enbledu.downloaddemo.service.DownloadService;
 
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity{
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 0;
-    private TextView fileName;
-    private ProgressBar progressBar;
-    private Button btnStop;
-    private Button btnStart;
-    private ImageView img;
+    private ListView listview =null;
+    private List<FileInfo> filelist = null;
+    private FileListAdapter fileListAdapter = null;
     BroadcastReceiver mReceiver;
-    FileInfo fileInfo;
+    FileInfo fileInfo1;
+    FileInfo fileInfo2;
+    FileInfo fileInfo3;
+    FileInfo fileInfo0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        fileName = (TextView) findViewById(R.id.text);
-        progressBar = (ProgressBar) findViewById(R.id.download_progress);
-        btnStop = (Button) findViewById(R.id.btn_stop);
-        btnStart = (Button) findViewById(R.id.btn_start);
-        btnStop.setOnClickListener(this);
-        btnStart.setOnClickListener(this);
-        progressBar.setMax(100);
+
+        listview = (ListView) findViewById(R.id.listview);
+        //文件的集合
+        filelist = new ArrayList<FileInfo>();
+        //创建文件信息对象
+        fileInfo0 = new FileInfo(0,"http://10.0.2.2:8080/0.jpg","0.jpg",0,0);
+        fileInfo1 = new FileInfo(1,"http://10.0.2.2:8080/1.jpg","1.jpg",0,0);
+        fileInfo2 = new FileInfo(2,"http://10.0.2.2:8080/2.jpg","2.jpg",0,0);
+        fileInfo3 = new FileInfo(3,"http://10.0.2.2:8080/3.jpg","3.jpg",0,0);
+        filelist.add(fileInfo0);
+        filelist.add(fileInfo1);
+        filelist.add(fileInfo2);
+        filelist.add(fileInfo3);
+        fileListAdapter = new FileListAdapter(this, filelist);
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+        listview.setAdapter(fileListAdapter);
+
 
        /* String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/download/beauty.png";
         img = (ImageView) findViewById(R.id.img);
@@ -53,15 +64,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //将图片显示到ImageView中
             img.setImageBitmap(bm);
         }*/
-
-
-
-
-
-
         Log.i("asd","asdsad");
-        //创建文件信息对象
-        fileInfo = new FileInfo(0,"http://10.0.2.2:8080/1.png","beauty.png",0,0);
+
 
         //广播接收器
         mReceiver = new BroadcastReceiver() {
@@ -69,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onReceive(Context context, Intent intent) {
                 if(DownloadService.ACTION_UPDATE.equals(intent.getAction())) {
                     int finished = intent.getIntExtra("finished",0);
-                    progressBar.setProgress(finished);
+
                 }
             }
         };
@@ -85,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         unregisterReceiver(mReceiver);
     }
 
-    @Override
+    /*@Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -95,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Intent intent = new Intent(MainActivity.this, DownloadService.class);
                     intent.setAction(DownloadService.ACTION_START);
-                    intent.putExtra("fileInfo", fileInfo);
+                    intent.putExtra("fielInfo", fileInfo0);
                     startService(intent);
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
@@ -112,8 +116,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // permissions this app might request
         }
     }
-
-    @Override
+*/
+    /*@Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_start: {
@@ -151,5 +155,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             }
         }
-    }
+    }*/
 }
