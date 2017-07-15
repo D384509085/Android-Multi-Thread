@@ -1,7 +1,10 @@
 package enbledu.downloaddemo.activity;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -10,12 +13,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import enbledu.downloaddemo.R;
 import enbledu.downloaddemo.entities.FileInfo;
 import enbledu.downloaddemo.service.DownloadService;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -24,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ProgressBar progressBar;
     private Button btnStop;
     private Button btnStart;
+    private ImageView img;
+    BroadcastReceiver mReceiver;
     FileInfo fileInfo;
 
     @Override
@@ -36,11 +43,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnStart = (Button) findViewById(R.id.btn_start);
         btnStop.setOnClickListener(this);
         btnStart.setOnClickListener(this);
+        progressBar.setMax(100);
+
+       /* String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/download/beauty.png";
+        img = (ImageView) findViewById(R.id.img);
+        File file = new File(filepath);
+        if (file.exists()) {
+            Bitmap bm = BitmapFactory.decodeFile(filepath);
+            //将图片显示到ImageView中
+            img.setImageBitmap(bm);
+        }*/
+
+
+
+
+
+
         Log.i("asd","asdsad");
         //创建文件信息对象
-        fileInfo = new FileInfo(0,"http://10.0.2.2:8080/1.png","beauty.jpg",0,0);
+        fileInfo = new FileInfo(0,"http://10.0.2.2:8080/1.png","beauty.png",0,0);
 
-        //添加监听
+        //广播接收器
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if(DownloadService.ACTION_UPDATE.equals(intent.getAction())) {
+                    int finished = intent.getIntExtra("finished",0);
+                    progressBar.setProgress(finished);
+                }
+            }
+        };
+        //注册广播接收器
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(DownloadService.ACTION_UPDATE);
+        registerReceiver(mReceiver, filter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
     }
 
     @Override

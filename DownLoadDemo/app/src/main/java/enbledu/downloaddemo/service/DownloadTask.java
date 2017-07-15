@@ -1,6 +1,7 @@
 package enbledu.downloaddemo.service;
 
 import android.content.Context;
+import android.content.Intent;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 import enbledu.downloaddemo.database.ThreadDAO;
 import enbledu.downloaddemo.database.ThreadDAOImpl;
@@ -16,18 +18,36 @@ import enbledu.downloaddemo.entities.FileInfo;
 import enbledu.downloaddemo.entities.ThreadInfo;
 
 /**
+ * 下载任务类
  * Created by Administrator on 2017/7/15 0015.
  */
 
 public class DownloadTask {
-    private Context mContex = null;
+    private Context mContext = null;
     private FileInfo mFileInfo = null;
     private ThreadDAO mDao = null;
+    private int mFinished = 0;
+    public boolean isPause = false;
+
     public DownloadTask(Context mContex, FileInfo mFileInfo) {
-        this.mContex = mContex;
+        this.mContext = mContex;
         this.mFileInfo = mFileInfo;
         mDao = new ThreadDAOImpl(mContex);
     }
+
+    public void download() {
+        List<ThreadInfo> threadInfoList = mDao.getThreads(mFileInfo.getUrl());
+        ThreadInfo threadInfo = null;
+        if(threadInfoList.size() == 0) {
+            //初始化线程信息对象
+            threadInfo = new ThreadInfo(0,mFileInfo.getUrl(),0,mFileInfo.getLength(),0);
+        } else {
+            threadInfo = threadInfoList.get(0);
+        }
+        //创建子线程下载
+        new DownloadThread(threadInfo).start();
+    }
+
     /**
      * 下载线程
      */
@@ -42,26 +62,59 @@ public class DownloadTask {
             if(!mDao.isExists(mThreadInfo.getUrl(), mThreadInfo.getId())) {
                 mDao.insertThread(mThreadInfo);
             }
+            HttpURLConnection conn = null;
+            RandomAccessFile raf = null;
+            InputStream input = null;
             try {
                 URL url = new URL(mThreadInfo.getUrl());
-                HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+                conn = (HttpURLConnection)url.openConnection();
                 conn.setConnectTimeout(3000);
                 conn.setRequestMethod("GET");
                 //设置下载位置
                 int start = mThreadInfo.getStart() + mThreadInfo.getFinished();
                 conn.setRequestProperty("Range", "bytes="+start+"-"+mThreadInfo.getEnd());
                 File file = new File(DownloadService.DOWNLOAD_PATH, mFileInfo.getFileName());
-                RandomAccessFile raf = new RandomAccessFile(file, "rwd");
+                raf = new RandomAccessFile(file, "rwd");
                 raf.seek(start);
 
-                InputStream input = conn.getInputStream();
+                Intent intent1 = new Intent(DownloadService.ACTION_UPDATE);
+                Intent intent2 = new Intent(DownloadService.ACTION_FINISHED);
+                mFinished += mThreadInfo.getFinished();
+                input = conn.getInputStream();
                 byte[] buffer = new byte[1024*4];
                 int len = -1;
-                
+                long time = System.currentTimeMillis();
+                while ((len = input.read(buffer))!= -1) {
+                    raf.write(buffer,0,len);
+                    mFinished += len;
+
+                    if (System.currentTimeMillis() - time > 500) {
+                        time = System.currentTimeMillis();
+                        intent1.putExtra("finished", mFinished*100/mFileInfo.getLength());
+                        mContext.sendBroadcast(intent1);
+                    }
+                    if(isPause) {
+                        mDao.updateThread(mThreadInfo.getUrl(), mThreadInfo.getId(), mFinished);
+                        return;
+                    }
+                    if (mFinished == mFileInfo.getFinished()) {
+
+                    }
+                }
+                //从数据库删除线程信息
+                mDao.deleteThread(mThreadInfo.getUrl(), mThreadInfo.getId());
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
+            }finally {
+                conn.disconnect();;
+                try {
+                    input.close();
+                    raf.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
 

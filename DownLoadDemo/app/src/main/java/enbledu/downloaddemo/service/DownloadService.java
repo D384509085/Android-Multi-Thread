@@ -20,9 +20,13 @@ import enbledu.downloaddemo.entities.FileInfo;
 public class DownloadService extends Service {
 
     private String TAG = "DownloadService";
+    private  DownloadTask mTask = null;
+
     public static final String DOWNLOAD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/download/";
     public static final String ACTION_START = "ACTION_START";
     public static final String ACTION_STOP = "ACTION_STOP";
+    public static final String ACTION_UPDATE = "ACTION_UPDATE";
+    public static final String ACTION_FINISHED = "ACTION_FINISHED";
     public static final int MSG_INIT = 0;
 
     public DownloadService() {
@@ -38,6 +42,9 @@ public class DownloadService extends Service {
         } else  if (ACTION_STOP.equals(intent.getAction())) {
             FileInfo fileInfo = (FileInfo) intent.getSerializableExtra("fileInfo");
             Log.i(TAG,fileInfo.toString()+"stop");
+            if(mTask!=null) {
+                mTask.isPause = true;
+            }
         }
 
         return super.onStartCommand(intent, flags, startId);
@@ -56,6 +63,9 @@ public class DownloadService extends Service {
                 case MSG_INIT: {
                     FileInfo fileInfo = (FileInfo) msg.obj;
                     Log.i("test", "init"+ fileInfo.toString());
+                    //启动下载任务
+                    mTask = new DownloadTask(DownloadService.this,fileInfo);
+                    mTask.download();
                 }
             }
         }
