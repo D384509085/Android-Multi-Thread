@@ -6,9 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity{
     private ListView listview =null;
     private List<FileInfo> filelist = null;
     private FileListAdapter fileListAdapter = null;
+    ImageView img;
     BroadcastReceiver mReceiver;
     FileInfo fileInfo1;
     FileInfo fileInfo2;
@@ -57,15 +60,15 @@ public class MainActivity extends AppCompatActivity{
         listview.setAdapter(fileListAdapter);
 
 
-       /* String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/download/beauty.png";
-        img = (ImageView) findViewById(R.id.img);
+        String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/downloa/0.jpg";
+        /*img = (ImageView) findViewById(R.id.img_main);
         File file = new File(filepath);
         if (file.exists()) {
             Bitmap bm = BitmapFactory.decodeFile(filepath);
             //将图片显示到ImageView中
             img.setImageBitmap(bm);
-        }*/
-        Log.i("asd","asdsad");
+        }
+        Log.i("asd","asdsad");*/
 
 
         //广播接收器
@@ -73,6 +76,7 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onReceive(Context context, Intent intent) {
                 if(DownloadService.ACTION_UPDATE.equals(intent.getAction())) {
+                    Log.i("onreceive","update");
                     int finished = intent.getIntExtra("finished",0);
                     int id = intent.getIntExtra("id" , 0);
                     fileListAdapter.updateProgress(id, finished);
@@ -82,6 +86,8 @@ public class MainActivity extends AppCompatActivity{
                     FileInfo fileInfo = (FileInfo) intent.getSerializableExtra("fileInfo");
                     fileListAdapter.updateProgress(fileInfo.getId(),100);
                     Toast.makeText(MainActivity.this, filelist.get(fileInfo.getId()).getFileName()+"下载完毕", Toast.LENGTH_SHORT).show();
+                    int id = intent.getIntExtra("id", 0);
+                    fileListAdapter.setImage(id);
                 }
             }
         };

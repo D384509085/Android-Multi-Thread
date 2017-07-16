@@ -83,6 +83,7 @@ public class DownloadTask {
             //发送广播,通知下载结束
             Intent intent = new Intent(DownloadService.ACTION_FINISHED);
             intent.putExtra("fileInfo", mFileInfo);
+            intent.putExtra("id", mFileInfo.getId());
             mContext.sendBroadcast(intent);
         }
     }
@@ -100,9 +101,9 @@ public class DownloadTask {
         }
         public void run() {
             //向数据库插入线程信息
-            if(!mDao.isExists(mThreadInfo.getUrl(), mThreadInfo.getId())) {
+         /*   if(!mDao.isExists(mThreadInfo.getUrl(), mThreadInfo.getId())) {
                 mDao.insertThread(mThreadInfo);
-            }
+            }*/
             HttpURLConnection conn = null;
             RandomAccessFile raf = null;
             InputStream input = null;
@@ -132,22 +133,23 @@ public class DownloadTask {
                     //累加每个线程的进度
                     mThreadInfo.setFinished(mThreadInfo.getFinished() + len);
 
-                    if (System.currentTimeMillis() - time > 500) {
+                    if (System.currentTimeMillis() - time > 100) {
                         time = System.currentTimeMillis();
                         intent1.putExtra("finished", mFinished*100/mFileInfo.getLength());
                         intent1.putExtra("id", mFileInfo.getId());
                         mContext.sendBroadcast(intent1);
                     }
                     if(isPause) {
-                        mDao.updateThread(mThreadInfo.getUrl(), mThreadInfo.getId(), mThreadInfo.getFinished());
+                    //    mDao.updateThread(mThreadInfo.getUrl(), mThreadInfo.getId(), mThreadInfo.getFinished());
                         return;
                     }
                 }
                 //标记该线程已执行
                 isFinished = true;
                 //从数据库删除线程信息
-                mDao.deleteThread(mThreadInfo.getUrl(), mThreadInfo.getId());
+               // mDao.deleteThread(mThreadInfo.getUrl(), mThreadInfo.getId());
                 //检查下载任务是否执行完毕
+                checkAllThreadsFinished();
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {

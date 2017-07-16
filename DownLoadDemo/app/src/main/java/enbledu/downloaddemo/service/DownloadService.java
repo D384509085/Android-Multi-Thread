@@ -24,7 +24,7 @@ public class DownloadService extends Service {
     private String TAG = "DownloadService";
     private Map<Integer, DownloadTask> mTasks = new LinkedHashMap<Integer,DownloadTask>();
 
-    public static final String DOWNLOAD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/downloa/";
+    public static final String DOWNLOAD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/download/";
     public static final String ACTION_START = "ACTION_START";
     public static final String ACTION_STOP = "ACTION_STOP";
     public static final String ACTION_UPDATE = "ACTION_UPDATE";

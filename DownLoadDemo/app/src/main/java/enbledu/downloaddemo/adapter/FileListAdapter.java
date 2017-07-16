@@ -2,6 +2,9 @@ package enbledu.downloaddemo.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.List;
 
 import enbledu.downloaddemo.R;
@@ -58,6 +62,7 @@ public class FileListAdapter extends BaseAdapter{
             holder.btnStart = (Button) convertView.findViewById(R.id.btn_start);
             holder.btnStop = (Button) convertView.findViewById(R.id.btn_stop);
             holder.progressBar = (ProgressBar) convertView.findViewById(R.id.download_progress);
+            holder.imageView = (ImageView) convertView.findViewById(R.id.img);
             convertView.setTag(holder);
         }
         else {
@@ -86,6 +91,16 @@ public class FileListAdapter extends BaseAdapter{
                 mContext.startService(intent);
             }
         });
+
+        if (fileInfo.getIsfinished()) {
+            String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/download/" + fileInfo.getFileName();
+            File file = new File(filepath);
+            if (file.exists()) {
+                Bitmap bm = BitmapFactory.decodeFile(filepath);
+                //将图片显示到ImageView中
+                holder.imageView.setImageBitmap(bm);
+            }
+        }
         return convertView;
     }
 
@@ -98,7 +113,12 @@ public class FileListAdapter extends BaseAdapter{
         fileInfo.setFinished(progress);
         notifyDataSetChanged();
     }
-
+    public void setImage(int id) {
+        FileInfo fileInfo = mFileList.get(id);
+            fileInfo.setIsfinished(true);
+            notifyDataSetChanged();
+        Log.i("asd","asdsad");
+    }
     //静态类只会被加载一次
     static class ViewHolder {
         TextView textView;

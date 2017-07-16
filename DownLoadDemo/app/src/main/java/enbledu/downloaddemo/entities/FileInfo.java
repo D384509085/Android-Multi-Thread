@@ -12,6 +12,7 @@ public class FileInfo implements Serializable{
     private String fileName;
     private int length;
     private int finished;
+    private boolean isFinished = false;
 
     public FileInfo(int id, String url, String fileName, int length, int finished) {
         this.id = id;
@@ -56,6 +57,9 @@ public class FileInfo implements Serializable{
         return finished;
     }
 
+    public boolean getIsfinished() {
+        return isFinished;
+    }
     public void setId(int id) {
         this.id = id;
     }
@@ -74,5 +78,8 @@ public class FileInfo implements Serializable{
 
     public void setFinished(int finished) {
         this.finished = finished;
+    }
+    public void setIsfinished(boolean isFinished) {
+        this.isFinished = isFinished;
     }
 }
