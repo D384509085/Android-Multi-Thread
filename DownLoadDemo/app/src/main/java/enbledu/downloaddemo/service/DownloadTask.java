@@ -48,7 +48,7 @@ public class DownloadTask {
         if(threadInfoList.size() == 0) {
             //获得每个线程下载长度
             int eachlength = mFileInfo.getLength() / mThreadCount;
-            for(int i = 0; i < mThreadCount-1; i++) {
+            for(int i = 0; i < mThreadCount; i++) {
                 ThreadInfo threadInfo = new ThreadInfo(i, mFileInfo.getUrl(),eachlength*i, (i+1)*eachlength-1, 0);
                 //最后一个线程
                 if(i == mThreadCount - 1) {
