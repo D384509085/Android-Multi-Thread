@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,7 +68,7 @@ public class FileListAdapter extends BaseAdapter{
             holder = (ViewHolder) convertView.getTag();
         }
         final FileInfo fileInfo = mFileList.get(position);
-        Log.i("Adapter", fileInfo.toString());
+        //Log.i("Adapter", fileInfo.toString());
         holder.textView.setText(fileInfo.getFileName());
         holder.progressBar.setMax(100);
         holder.progressBar.setProgress(fileInfo.getFinished());
@@ -117,7 +116,7 @@ public class FileListAdapter extends BaseAdapter{
         FileInfo fileInfo = mFileList.get(id);
             fileInfo.setIsfinished(true);
             notifyDataSetChanged();
-        Log.i("asd","asdsad");
+        //Log.i("asd","asdsad");
     }
     //静态类只会被加载一次
     static class ViewHolder {

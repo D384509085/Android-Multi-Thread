@@ -3,11 +3,13 @@ package enbledu.downloaddemo.database;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import enbledu.downloaddemo.entities.ThreadInfo;
+
 
 /**
  * 数据访问接口实现
@@ -16,50 +18,57 @@ import enbledu.downloaddemo.entities.ThreadInfo;
 
 public class ThreadDAOImpl implements ThreadDAO {
 
+    String TAG = "ThreadDAOImpl";
     private DBHelper mHelper = null;
 
     public ThreadDAOImpl(Context context) {
-        mHelper = new DBHelper(context);
+        mHelper = DBHelper.getInstance(context);
     }
 
     @Override
-    public void insertThread(ThreadInfo threadInfo) {
+    public synchronized void insertThread(ThreadInfo threadInfo) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
+        Log.d(TAG, "set end ="+threadInfo.getEnd());
         db.execSQL("insert into thread_info(thread_id,url,start,end,finished) values(?,?,?,?,?)",
-                new Object[]{threadInfo.getId(),threadInfo.getUrl(),threadInfo.getEnd(),threadInfo.getFinished()});
+                new Object[]{threadInfo.getId(),threadInfo.getUrl(),threadInfo.getStart(),threadInfo.getEnd(),threadInfo.getFinished()});
         db.close();
     }
 
     @Override
-    public void deleteThread(String url, int thread_id) {
+    public synchronized void deleteThread(String url) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
-        db.execSQL("delete from thread_info where url = ? and thread_id = ?",
-                new Object[]{url, thread_id});
+       /* db.execSQL("delete from thread_info where url = ? and thread_id = ?",
+                new Object[]{url, thread_id});*/
+       db.execSQL("delete from thread_info where url = ?");
         db.close();
     }
 
     @Override
-    public void updateThread(String url, int thread_id, int finished) {
+    public synchronized void updateThread(String url, int thread_id, int finished) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
         db.execSQL("update thread_info set finished = ? where url = ? and thread_id = ?",
-                new Object[]{finished,url, thread_id});
+                new Object[]{finished, url, thread_id}
+        );
         db.close();
     }
 
     @Override
     public List<ThreadInfo> getThreads(String url) {
-        SQLiteDatabase db = mHelper.getWritableDatabase();
+        SQLiteDatabase db = mHelper.getReadableDatabase();
         List<ThreadInfo> list = new ArrayList<ThreadInfo>();
-        Cursor cursor = db.rawQuery("select * from thread_info where url = ?",
-                new String[]{url});
+        /*Cursor cursor = db.rawQuery("select * from thread_info where url = ?",
+                 new String[]{url});*/
+        Cursor cursor = db.query("thread_info",null,null,null,null,null,null);
         while (cursor.moveToNext()) {
             ThreadInfo thread = new ThreadInfo();
-            thread.setId(cursor.getInt(cursor.getColumnIndex("Thread_id")));
+            thread.setId(cursor.getInt(cursor.getColumnIndex("thread_id")));
             thread.setUrl(cursor.getString(cursor.getColumnIndex("url")));
             thread.setStart(cursor.getInt(cursor.getColumnIndex("start")));
+            Log.d(TAG, "end为 "+ cursor.getInt(cursor.getColumnIndex("end")));
             thread.setEnd(cursor.getInt(cursor.getColumnIndex("end")));
             thread.setFinished(cursor.getInt(cursor.getColumnIndex("finished")));
             list.add(thread);
+            Log.d(TAG , thread.toString());
         }
         cursor.close();
         db.close();
@@ -73,9 +82,12 @@ public class ThreadDAOImpl implements ThreadDAO {
         Cursor cursor = db.rawQuery("select * from thread_info where url = ? and thread_id = ?",
                 new String[]{url, thread_id+""});
         //有
+        if (cursor!=null) {
         boolean existis = cursor.moveToNext();
-        cursor.close();
-        db.close();
-        return existis;
+            cursor.close();
+            db.close();
+            return existis;
+        }
+        return false;
     }
 }

@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
 
+    private static DBHelper sHelper = null;
     private static final String DB_NAME = "download.db";
     private static final int VERSION = 1;
     private static final String SQL_CREATE = "create table thread_info(_id integer primary key autoincrement," +
@@ -33,5 +34,11 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(SQL_DROP);
         db.execSQL(SQL_CREATE);
+    }
+    public static DBHelper getInstance(Context context) {
+        if (sHelper == null) {
+            sHelper = new DBHelper(context);
+        }
+        return sHelper;
     }
 }

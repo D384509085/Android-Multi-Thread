@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity{
         //文件的集合
         filelist = new ArrayList<FileInfo>();
         //创建文件信息对象
-        fileInfo0 = new FileInfo(0,"http://pic.pp3.cn/uploads/201501/2015012812.jpg","0.jpg",0,0);
+        fileInfo0 = new FileInfo(0,"http://photos.tuchong.com/244476/f/4851321.jpg","0.jpg",0,0);
         fileInfo1 = new FileInfo(1,"http://10.0.2.2:8080/1.jpg","1.jpg",0,0);
         fileInfo2 = new FileInfo(2,"http://10.0.2.2:8080/2.jpg","2.jpg",0,0);
         fileInfo3 = new FileInfo(3,"http://10.0.2.2:8080/3.jpg","3.jpg",0,0);

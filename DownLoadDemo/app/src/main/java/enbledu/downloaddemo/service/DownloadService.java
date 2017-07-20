@@ -22,8 +22,7 @@ import enbledu.downloaddemo.entities.FileInfo;
 public class DownloadService extends Service {
 
     private String TAG = "DownloadService";
-    private Map<Integer, DownloadTask> mTasks = new LinkedHashMap<Integer,DownloadTask>();
-
+    private Map<Integer, DownloadTask> mTasks = new LinkedHashMap<Integer, DownloadTask>();
     public static final String DOWNLOAD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/download/";
     public static final String ACTION_START = "ACTION_START";
     public static final String ACTION_STOP = "ACTION_STOP";
@@ -35,21 +34,24 @@ public class DownloadService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent,  int flags, int startId) {
-        if (ACTION_START.equals(intent.getAction())) {
-            FileInfo fileInfo = (FileInfo) intent.getSerializableExtra("fileInfo");
-            Log.i("onStartCommand",fileInfo.toString());
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null) {
+            if (ACTION_START.equals(intent.getAction())) {
 
-            new InitThread(fileInfo).start();
-        } else  if (ACTION_STOP.equals(intent.getAction())) {
-            FileInfo fileInfo = (FileInfo) intent.getSerializableExtra("fileInfo");
-            //从集合中取出下载任务
-            DownloadTask task = mTasks.get(fileInfo.getId());
-            if (task != null) {
-                task.isPause = true;
+                FileInfo fileInfo = (FileInfo) intent.getSerializableExtra("fileInfo");
+                Log.i("onStartCommand", fileInfo.toString());
+                new InitThread(fileInfo).start();
+
+
+            } else if (ACTION_STOP.equals(intent.getAction())) {
+                FileInfo fileInfo = (FileInfo) intent.getSerializableExtra("fileInfo");
+                //从集合中取出下载任务
+                DownloadTask task = mTasks.get(fileInfo.getId());
+                if (task != null) {
+                    task.isPause = true;
+                }
             }
         }
-
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -65,7 +67,7 @@ public class DownloadService extends Service {
             switch (msg.what) {
                 case MSG_INIT: {
                     FileInfo fileInfo = (FileInfo) msg.obj;
-                    Log.i("test", "init"+ fileInfo.toString());
+                    Log.i("DownloadService", "init" + fileInfo.toString());
                     //启动下载任务
                     DownloadTask task = new DownloadTask(DownloadService.this, fileInfo, 3);
                     task.download();
@@ -75,16 +77,18 @@ public class DownloadService extends Service {
             }
         }
     };
+
     /**
      * 初始化子线程
      */
-    class InitThread extends Thread{
-        
+    class InitThread extends Thread {
+
         private FileInfo mFileInfo = null;
-        
+
         public InitThread(FileInfo mFileInfo) {
             this.mFileInfo = mFileInfo;
         }
+
         public void run() {
             HttpURLConnection conn = null;
             RandomAccessFile raf = null;
@@ -96,19 +100,19 @@ public class DownloadService extends Service {
                 conn.setRequestMethod("GET");
                 int length = -1;
                 length = conn.getContentLength();
-                if (length<=0) {
+                if (length <= 0) {
                     return;
                 }
                 File dir = new File(DOWNLOAD_PATH);
-                if(!dir.exists()) {
+                if (!dir.exists()) {
                     dir.mkdirs();
                 }
                 File file = new File(dir, mFileInfo.getFileName());
-                Log.i("run","last");
+                Log.i("run", "last");
                 raf = new RandomAccessFile(file, "rwd");
                 raf.setLength(length);
                 mFileInfo.setLength(length);
-                mHandler.obtainMessage(MSG_INIT,mFileInfo).sendToTarget();
+                mHandler.obtainMessage(MSG_INIT, mFileInfo).sendToTarget();
                 Log.i("Service", "handler");
             } catch (MalformedURLException e) {
                 e.printStackTrace();
