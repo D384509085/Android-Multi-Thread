@@ -13,6 +13,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import enbledu.downloaddemo.database.ThreadDAO;
 import enbledu.downloaddemo.database.ThreadDAOImpl;
@@ -32,6 +34,8 @@ public class DownloadTask {
     private volatile int allHaveFinished = 0;
     private  int mThreadCount = 0;
     private List<DownloadThread> threadList = null;
+
+    public static ExecutorService mExecutorService = Executors.newCachedThreadPool();
 
     public boolean isPause = false;
 
@@ -78,7 +82,8 @@ public class DownloadTask {
         threadList = new ArrayList<DownloadThread>();
             for (ThreadInfo threadInfo : threadInfoList) {
                 DownloadThread thread = new DownloadThread(threadInfo);
-                thread.start();
+                //thread.start();
+                DownloadTask.mExecutorService.execute(thread);
                 //将线程添加到集合中
                 threadList.add(thread);
             }

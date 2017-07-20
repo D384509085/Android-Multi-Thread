@@ -62,6 +62,27 @@ public class FileListAdapter extends BaseAdapter{
             holder.btnStop = (Button) convertView.findViewById(R.id.btn_stop);
             holder.progressBar = (ProgressBar) convertView.findViewById(R.id.download_progress);
             holder.imageView = (ImageView) convertView.findViewById(R.id.img);
+
+            holder.textView.setText(fileInfo.getFileName());
+            holder.btnStart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mContext, DownloadService.class);
+                    intent.setAction(DownloadService.ACTION_START);
+                    intent.putExtra("fileInfo", fileInfo);
+                    mContext.startService(intent);
+                }
+            });
+            holder.btnStop.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mContext, DownloadService.class);
+                    intent.setAction(DownloadService.ACTION_STOP);
+                    intent.putExtra("fileInfo", fileInfo);
+                    mContext.startService(intent);
+                }
+            });
+
             convertView.setTag(holder);
         }
         else {
@@ -69,28 +90,8 @@ public class FileListAdapter extends BaseAdapter{
         }
         final FileInfo fileInfo = mFileList.get(position);
         //Log.i("Adapter", fileInfo.toString());
-        holder.textView.setText(fileInfo.getFileName());
         holder.progressBar.setMax(100);
         holder.progressBar.setProgress(fileInfo.getFinished());
-        holder.btnStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(mContext, DownloadService.class);
-                intent.setAction(DownloadService.ACTION_START);
-                intent.putExtra("fileInfo", fileInfo);
-                mContext.startService(intent);
-            }
-        });
-        holder.btnStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(mContext, DownloadService.class);
-                intent.setAction(DownloadService.ACTION_STOP);
-                intent.putExtra("fileInfo", fileInfo);
-                mContext.startService(intent);
-            }
-        });
-
         if (fileInfo.getIsfinished()) {
             String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/download/" + fileInfo.getFileName();
             File file = new File(filepath);

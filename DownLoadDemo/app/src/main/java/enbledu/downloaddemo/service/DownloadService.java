@@ -40,8 +40,8 @@ public class DownloadService extends Service {
 
                 FileInfo fileInfo = (FileInfo) intent.getSerializableExtra("fileInfo");
                 Log.i("onStartCommand", fileInfo.toString());
-                new InitThread(fileInfo).start();
-
+                InitThread mInitThread = new InitThread(fileInfo);
+                DownloadTask.mExecutorService.execute(mInitThread);
 
             } else if (ACTION_STOP.equals(intent.getAction())) {
                 FileInfo fileInfo = (FileInfo) intent.getSerializableExtra("fileInfo");
