@@ -54,6 +54,7 @@ public class FileListAdapter extends BaseAdapter{
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder = null;
+        fileInfo = mFileList.get(position);
         if (convertView == null) {
            convertView = LayoutInflater.from(mContext).inflate(R.layout.list_item, null);
             holder = new ViewHolder();
